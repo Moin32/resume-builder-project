@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const pdf = require("html-pdf");
 const path = require("path");
+const cors = require("cors");
 
 const app = express();
 
@@ -9,21 +10,22 @@ const pdfTemplate = require("./documents");
 
 const options = {
 	height: "42cm",
-	width: "29.7cm",
+	width: "40.7cm",
 	timeout: "6000",
 };
-
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.use(express.static(path.join(__dirname, "/client/build")));
+// app.use(express.static(path.join(__dirname, "/client/build")));
 
-app.get("*", (req, res) => {
-	res.sendFile(path.join(__dirname, "/client/build", "index.html"));
-});
+// app.get("*", (req, res) => {
+// 	res.sendFile(path.join(__dirname, "/client/build", "index.html"));
+// });
 
 // POST route for PDF generation....
 app.post("/create-pdf", (req, res) => {
+	console.log("Hello")
 	pdf.create(pdfTemplate(req.body), options).toFile("Resume.pdf", (err) => {
 		if (err) {
 			console.log(err);
@@ -34,11 +36,12 @@ app.post("/create-pdf", (req, res) => {
 
 // GET route -> send generated PDF to client...
 app.get("/fetch-pdf", (req, res) => {
-	const file = path.join(__dirname, `${__dirname}/Resume.pdf`);
+	console.log("2 Fetch")
+	const file = path.join(`${__dirname}/Resume.pdf`);
 	console.log(file);
 	console.log("show");
 	res.download(file);
 });
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5050;
 app.listen(port, () => console.log(`Server started on port ${port}`));
